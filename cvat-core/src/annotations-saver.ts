@@ -177,6 +177,7 @@ export default class AnnotationsSaver {
     }
 
     _updateCreatedObjects(saved: SerializedCollection, indexes: ExtractedIDs): void {
+        console.log("Fuck");
         const savedLength = saved.tracks.length + saved.shapes.length + saved.tags.length;
         const indexesLength = indexes.tracks.length + indexes.shapes.length + indexes.tags.length;
         if (indexesLength !== savedLength) {
@@ -402,7 +403,7 @@ export default class AnnotationsSaver {
             }
 
             if (created.shapes.length || created.tags.length || created.tracks.length) {
-                onUpdate('Created objects are being saved on the server');
+                onUpdate('Ay kir');
                 const createdIndexes = this._extractClientIDs(created);
                 const requestBody = { ...created, version: this.version };
                 let createdData = null;

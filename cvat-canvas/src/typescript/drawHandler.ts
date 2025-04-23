@@ -491,6 +491,7 @@ export class DrawHandlerImpl implements DrawHandler {
         });
 
         this.canvas.on('mousemove.draw', (e: MouseEvent): void => {
+            console.log("Checkkkkk");
             if (initialPoint.x !== null && initialPoint.y !== null) {
                 const translated = translateToSVG(this.canvas.node as any as SVGSVGElement, [e.clientX, e.clientY]);
                 const rx = Math.abs(translated[0] - initialPoint.x) / 2;
