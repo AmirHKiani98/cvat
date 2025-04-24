@@ -5,6 +5,7 @@ from PIL import Image
 import io
 import json
 import base64
+from . import utils
 
 @csrf_exempt # We'll use proper CSRF protection in production #TODO don't forget about this
 @require_http_methods(["POST", "OPTIONS"])
@@ -29,9 +30,10 @@ def process_image(request):
 
         image_bytes = base64.b64decode(base64_image)
         image = Image.open(io.BytesIO(image_bytes))
-        image.save("cropped_upload.png")  # Save for verification/testing
+        txts = utils.ocr_image_text(image)
 
-        return JsonResponse({"message": "Image processed successfully"})
+
+        return JsonResponse({"message": "Image processed successfully", "texts": txts}, status=200)
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
