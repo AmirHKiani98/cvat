@@ -403,7 +403,6 @@ export default class AnnotationsSaver {
             }
 
             if (created.shapes.length || created.tags.length || created.tracks.length) {
-                onUpdate('Ay kir');
                 const createdIndexes = this._extractClientIDs(created);
                 const requestBody = { ...created, version: this.version };
                 let createdData = null;
