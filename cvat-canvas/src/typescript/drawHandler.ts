@@ -434,7 +434,7 @@ export class DrawHandlerImpl implements DrawHandler {
                 const points = readPointsFromShape((e.target as any as { instance: SVG.Rect }).instance);
                 const [xtl, ytl, xbr, ybr] = this.getFinalRectCoordinates(points, true);
                 const { shapeType, redraw: clientID } = this.drawData;
-                this.cropAndSendImage([xtl, ytl, xbr, ybr], 'http://localhost:8000/_api/ocr/process/');
+                this.cropAndSendImage([xtl, ytl, xbr, ybr], 'http://localhost:8000/_api/ocr/get-image-txt-list/');
                 if (this.canceled) {
                     return;
                 }
@@ -1433,7 +1433,7 @@ export class DrawHandlerImpl implements DrawHandler {
         this.release();
     }
 
-    private cropAndSendImage([xtl, ytl, xbr, ybr]: number[], targetURL: string): void {
+    private async cropAndSendImage([xtl, ytl, xbr, ybr]: number[], targetURL: string): Promise<void> {
         const canvas = document.getElementById('cvat_canvas_background') as HTMLCanvasElement;
         if (!canvas) {
             console.error('Canvas element not found');
@@ -1462,23 +1462,26 @@ export class DrawHandlerImpl implements DrawHandler {
         }
 
         offscreenCtx.putImageData(imageData, 0, 0);
-
         const base64Image = offscreenCanvas.toDataURL('image/png');
 
-        fetch(targetURL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ image: base64Image }),
-        }).then((res) => {
-            if (!res.ok) {
-                console.error('Failed to send cropped image:', res.statusText);
+        try {
+            const response = await fetch(targetURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image: base64Image }),
+            });
+
+            const responseData = await response.json();
+
+            if (!response.ok) {
+                console.error('Failed to send cropped image:', responseData);
             } else {
-                console.log('Image sent successfully');
+                console.log('Image sent successfully:', responseData);
             }
-        }).catch((err) => {
+        } catch (err) {
             console.error('Network error:', err);
-        });
+        }
     }
 }
