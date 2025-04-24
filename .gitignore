@@ -51,6 +51,7 @@ yarn-error.log*
 node_modules
 /*env*/
 /.*env*
+.venv
 
 # Ignore all js dists
 cvat-data/dist
