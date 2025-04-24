@@ -9,7 +9,7 @@ from . import utils
 
 @csrf_exempt # We'll use proper CSRF protection in production #TODO don't forget about this
 @require_http_methods(["POST", "OPTIONS"])
-def process_image(request):
+def get_image_txt_list(request):
     if request.method == 'OPTIONS':
         # Handle CORS preflight
         response = JsonResponse({'detail': 'CORS preflight success'})
