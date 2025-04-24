@@ -434,7 +434,7 @@ export class DrawHandlerImpl implements DrawHandler {
                 const points = readPointsFromShape((e.target as any as { instance: SVG.Rect }).instance);
                 const [xtl, ytl, xbr, ybr] = this.getFinalRectCoordinates(points, true);
                 const { shapeType, redraw: clientID } = this.drawData;
-
+                this.cropAndSendImage([xtl, ytl, xbr, ybr], 'http://localhost:8000/_api/ocr/process/');
                 if (this.canceled) {
                     return;
                 }

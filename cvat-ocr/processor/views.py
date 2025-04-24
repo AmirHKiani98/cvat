@@ -1,37 +1,37 @@
-from django.shortcuts import render
-import base64
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from PIL import Image
 import io
-# Create your views here.
+import json
+import base64
 
-
-
-@csrf_exempt  # We'll use proper CSRF protection in production #TODO don't forget about this
+@csrf_exempt # We'll use proper CSRF protection in production #TODO don't forget about this
+@require_http_methods(["POST", "OPTIONS"])
 def process_image(request):
-    if request.method == "POST":
-        try:
-            import json
-            data = json.loads(request.body)
-            base64_image = data.get("image")
+    if request.method == 'OPTIONS':
+        # Handle CORS preflight
+        response = JsonResponse({'detail': 'CORS preflight success'})
+        response['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+        response['Access-Control-Allow-Headers'] = 'Content-Type'
+        response['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        return response
 
-            if not base64_image:
-                return JsonResponse({"error": "No image provided"}, status=400)
+    try:
+        data = json.loads(request.body)
+        base64_image = data.get("image")
 
-            # Remove base64 prefix if present
-            if "," in base64_image:
-                base64_image = base64_image.split(",")[1]
+        if not base64_image:
+            return JsonResponse({"error": "No image provided"}, status=400)
 
-            image_bytes = base64.b64decode(base64_image)
-            image = Image.open(io.BytesIO(image_bytes))
+        if "," in base64_image:
+            base64_image = base64_image.split(",")[1]
 
-            # Example: save the image or process it
-            image.save("cropped_upload.png")  # or do OCR, etc.
+        image_bytes = base64.b64decode(base64_image)
+        image = Image.open(io.BytesIO(image_bytes))
+        image.save("cropped_upload.png")  # Save for verification/testing
 
-            return JsonResponse({"message": "Image processed successfully"})
+        return JsonResponse({"message": "Image processed successfully"})
 
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-
-    return JsonResponse({"error": "Invalid method"}, status=405)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
