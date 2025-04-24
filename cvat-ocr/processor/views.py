@@ -36,4 +36,5 @@ def get_image_txt_list(request):
         return JsonResponse({"message": "Image processed successfully", "texts": txts}, status=200)
 
     except Exception as e:
+        print("Error processing image:", e)
         return JsonResponse({"error": str(e)}, status=500)
