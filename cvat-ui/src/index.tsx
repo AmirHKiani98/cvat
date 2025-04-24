@@ -60,7 +60,6 @@ interface StateToProps {
     isPasswordResetEnabled: boolean;
     isRegistrationEnabled: boolean;
 }
-
 interface DispatchToProps {
     loadFormats: () => void;
     verifyAuthenticated: () => void;

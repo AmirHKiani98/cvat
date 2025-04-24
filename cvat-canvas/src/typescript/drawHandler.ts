@@ -389,7 +389,7 @@ export class DrawHandlerImpl implements DrawHandler {
         if (this.drawInstance.remember('_paintHandler')) {
             if (['polygon', 'polyline', 'points'].includes(this.drawData.shapeType) ||
                 (this.drawData.shapeType === 'cuboid' &&
-                this.drawData.cuboidDrawingMethod === CuboidDrawingMethod.CORNER_POINTS)) {
+                    this.drawData.cuboidDrawingMethod === CuboidDrawingMethod.CORNER_POINTS)) {
                 // Check for unsaved drawn shapes
                 this.drawInstance.draw('done');
             }
@@ -491,7 +491,7 @@ export class DrawHandlerImpl implements DrawHandler {
         });
 
         this.canvas.on('mousemove.draw', (e: MouseEvent): void => {
-            console.log("Checkkkkk");
+            console.log('check');
             if (initialPoint.x !== null && initialPoint.y !== null) {
                 const translated = translateToSVG(this.canvas.node as any as SVGSVGElement, [e.clientX, e.clientY]);
                 const rx = Math.abs(translated[0] - initialPoint.x) / 2;
@@ -1315,7 +1315,7 @@ export class DrawHandlerImpl implements DrawHandler {
         point.fill({ opacity: this.isHidden ? 0 : 1 });
     }
 
-    private updateHidden(value: boolean) {
+    private updateHidden(value: boolean): void {
         this.isHidden = value;
 
         if (value) {
@@ -1431,5 +1431,54 @@ export class DrawHandlerImpl implements DrawHandler {
     public cancel(): void {
         this.canceled = true;
         this.release();
+    }
+
+    private cropAndSendImage([xtl, ytl, xbr, ybr]: number[], targetURL: string): void {
+        const canvas = document.getElementById('cvat_canvas_background') as HTMLCanvasElement;
+        if (!canvas) {
+            console.error('Canvas element not found');
+            return;
+        }
+
+        const width = xbr - xtl;
+        const height = ybr - ytl;
+
+        const context = canvas.getContext('2d');
+        if (!context) {
+            console.error('Canvas context is null');
+            return;
+        }
+
+        const imageData = context.getImageData(xtl, ytl, width, height);
+
+        const offscreenCanvas = document.createElement('canvas');
+        offscreenCanvas.width = width;
+        offscreenCanvas.height = height;
+
+        const offscreenCtx = offscreenCanvas.getContext('2d');
+        if (!offscreenCtx) {
+            console.error('Offscreen context is null');
+            return;
+        }
+
+        offscreenCtx.putImageData(imageData, 0, 0);
+
+        const base64Image = offscreenCanvas.toDataURL('image/png');
+
+        fetch(targetURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ image: base64Image }),
+        }).then((res) => {
+            if (!res.ok) {
+                console.error('Failed to send cropped image:', res.statusText);
+            } else {
+                console.log('Image sent successfully');
+            }
+        }).catch((err) => {
+            console.error('Network error:', err);
+        });
     }
 }

@@ -10,6 +10,7 @@ const Dotenv = require('dotenv-webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = (env) => {
+
     const defaultAppConfig = path.join(__dirname, 'src/config.tsx');
     const defaultPlugins = ['plugins/sam'];
 
@@ -37,6 +38,7 @@ module.exports = (env) => {
     const port = process.env.CVAT_UI_PORT ?? 3000;
     return {
         target: 'web',
+        watch: true,
         mode: 'production',
         devtool: sourceMapsDisabled ? false : 'source-map',
         entry: {
